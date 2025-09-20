@@ -1,38 +1,50 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/db"
-import { getUserFromRequest } from "@/lib/auth"
+import { createClient } from "@/lib/supabase/server"
 import { restockSchema } from "@/lib/validations"
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const user = getUserFromRequest(request)
-    if (!user) {
+    const supabase = await createClient()
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+    if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    if (user.role !== "ADMIN") {
+    // Check if user is admin
+    const { data: userProfile, error: profileError } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .single()
+
+    if (profileError || !userProfile || userProfile.role !== "admin") {
       return NextResponse.json({ error: "Admin access required" }, { status: 403 })
     }
 
     const body = await request.json()
     const validatedData = restockSchema.parse(body)
 
-    // Get current sweet
-    const sweet = await prisma.sweet.findUnique({
-      where: { id: params.id },
-    })
+    const { data: sweet, error: sweetError } = await supabase.from("sweets").select("*").eq("id", params.id).single()
 
-    if (!sweet) {
+    if (sweetError || !sweet) {
       return NextResponse.json({ error: "Sweet not found" }, { status: 404 })
     }
 
-    // Update sweet quantity
-    const updatedSweet = await prisma.sweet.update({
-      where: { id: params.id },
-      data: {
-        quantity: sweet.quantity + validatedData.quantity,
-      },
-    })
+    const { data: updatedSweet, error: updateError } = await supabase
+      .from("sweets")
+      .update({ quantity: sweet.quantity + validatedData.quantity })
+      .eq("id", params.id)
+      .select()
+      .single()
+
+    if (updateError) {
+      console.error("Restock error:", updateError)
+      return NextResponse.json({ error: "Failed to restock sweet" }, { status: 500 })
+    }
 
     return NextResponse.json({
       message: "Sweet restocked successfully",

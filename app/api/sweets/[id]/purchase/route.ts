@@ -1,24 +1,25 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/db"
-import { getUserFromRequest } from "@/lib/auth"
+import { createClient } from "@/lib/supabase/server"
 import { purchaseSchema } from "@/lib/validations"
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const user = getUserFromRequest(request)
-    if (!user) {
+    const supabase = await createClient()
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+    if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const body = await request.json()
     const validatedData = purchaseSchema.parse(body)
 
-    // Get sweet and check availability
-    const sweet = await prisma.sweet.findUnique({
-      where: { id: params.id },
-    })
+    const { data: sweet, error: sweetError } = await supabase.from("sweets").select("*").eq("id", params.id).single()
 
-    if (!sweet) {
+    if (sweetError || !sweet) {
       return NextResponse.json({ error: "Sweet not found" }, { status: 404 })
     }
 
@@ -29,35 +30,41 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     // Calculate total price
     const totalPrice = sweet.price * validatedData.quantity
 
-    // Create purchase and update sweet quantity in a transaction
-    const result = await prisma.$transaction(async (tx) => {
-      // Create purchase record
-      const purchase = await tx.purchase.create({
-        data: {
-          userId: user.userId,
-          sweetId: params.id,
+    const { data: purchase, error: purchaseError } = await supabase
+      .from("purchases")
+      .insert([
+        {
+          user_id: user.id,
+          sweet_id: params.id,
           quantity: validatedData.quantity,
-          totalPrice,
+          total_price: totalPrice,
         },
-        include: {
-          sweet: true,
-        },
-      })
+      ])
+      .select()
+      .single()
 
-      // Update sweet quantity
-      await tx.sweet.update({
-        where: { id: params.id },
-        data: {
-          quantity: sweet.quantity - validatedData.quantity,
-        },
-      })
+    if (purchaseError) {
+      console.error("Purchase creation error:", purchaseError)
+      return NextResponse.json({ error: "Failed to create purchase" }, { status: 500 })
+    }
 
-      return purchase
-    })
+    // Update sweet quantity
+    const { error: updateError } = await supabase
+      .from("sweets")
+      .update({ quantity: sweet.quantity - validatedData.quantity })
+      .eq("id", params.id)
+
+    if (updateError) {
+      console.error("Sweet quantity update error:", updateError)
+      return NextResponse.json({ error: "Failed to update inventory" }, { status: 500 })
+    }
 
     return NextResponse.json({
       message: "Purchase completed successfully",
-      purchase: result,
+      purchase: {
+        ...purchase,
+        sweet: sweet,
+      },
     })
   } catch (error) {
     console.error("Purchase error:", error)

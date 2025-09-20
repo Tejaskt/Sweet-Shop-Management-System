@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { Header } from "@/components/layout/header"
 import { SweetCard } from "@/components/sweets/sweet-card"
 import { SearchFilters } from "@/components/sweets/search-filters"
-import { apiClient } from "@/lib/api-client"
+import { supabaseApiClient } from "@/lib/supabase-client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Loader2, Settings } from "lucide-react"
@@ -19,7 +19,7 @@ interface Sweet {
   price: number
   quantity: number
   description?: string
-  imageUrl?: string
+  image_url?: string
 }
 
 export default function DashboardPage() {
@@ -39,7 +39,9 @@ export default function DashboardPage() {
   const fetchSweets = async (filters = {}) => {
     setLoading(true)
     const response =
-      Object.keys(filters).length > 0 ? await apiClient.searchSweets(filters) : await apiClient.getSweets()
+      Object.keys(filters).length > 0
+        ? await supabaseApiClient.searchSweets(filters)
+        : await supabaseApiClient.getSweets()
 
     if (response.error) {
       toast({
@@ -93,7 +95,7 @@ export default function DashboardPage() {
             <p className="text-muted-foreground mt-2">Discover and purchase your favorite sweets</p>
           </div>
 
-          {user.role === "ADMIN" && (
+          {user.role === "admin" && (
             <div className="flex gap-2">
               <Button onClick={() => router.push("/admin")} variant="outline">
                 <Settings className="mr-2 h-4 w-4" />
