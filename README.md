@@ -114,16 +114,16 @@ sweet-shop-management/
 Register a new user account.
 
 **Request Body:**
-\`\`\`json
+```json
 {
   "name": "John Doe",
   "email": "john@example.com",
   "password": "password123"
 }
-\`\`\`
+```
 
 **Response:**
-\`\`\`json
+```json
 {
   "message": "User registered successfully",
   "token": "jwt_token_here",
@@ -134,18 +134,18 @@ Register a new user account.
     "role": "USER"
   }
 }
-\`\`\`
+```
 
 #### POST `/api/auth/login`
 Authenticate user and receive JWT token.
 
 **Request Body:**
-\`\`\`json
+```json
 {
   "email": "john@example.com",
   "password": "password123"
 }
-\`\`\`
+```
 
 ### Sweet Management Endpoints
 
@@ -155,7 +155,7 @@ Retrieve all available sweets.
 **Headers:** `Authorization: Bearer <token>`
 
 **Response:**
-\`\`\`json
+```json
 {
   "sweets": [
     {
@@ -169,7 +169,7 @@ Retrieve all available sweets.
     }
   ]
 }
-\`\`\`
+```
 
 #### GET `/api/sweets/search`
 Search and filter sweets.
@@ -184,7 +184,7 @@ Search and filter sweets.
 Create a new sweet.
 
 **Request Body:**
-\`\`\`json
+```json
 {
   "name": "New Sweet",
   "category": "Candy",
@@ -193,7 +193,7 @@ Create a new sweet.
   "description": "Optional description",
   "imageUrl": "Optional image URL"
 }
-\`\`\`
+```
 
 #### PUT `/api/sweets/:id` (Admin Only)
 Update an existing sweet.
@@ -205,21 +205,21 @@ Delete a sweet from inventory.
 Purchase a sweet.
 
 **Request Body:**
-\`\`\`json
+```json
 {
   "quantity": 2
 }
-\`\`\`
+```
 
 #### POST `/api/sweets/:id/restock` (Admin Only)
 Restock a sweet.
 
 **Request Body:**
-\`\`\`json
+```json
 {
   "quantity": 50
 }
-\`\`\`
+```
 
 ## 🧪 Testing
 
@@ -227,7 +227,7 @@ The project includes comprehensive test coverage:
 
 ### Running Tests
 
-\`\`\`bash
+```bash
 # Run all tests
 npm test
 
@@ -236,7 +236,7 @@ npm run test:watch
 
 # Run tests with coverage report
 npm run test:coverage
-\`\`\`
+```
 
 ### Test Categories
 
@@ -281,7 +281,7 @@ The application uses a cohesive design system with:
 
 Create a `.env.local` file for local development:
 
-\`\`\`env
+```env
 # Database
 DATABASE_URL="file:./dev.db"
 
@@ -290,18 +290,18 @@ JWT_SECRET="your-secret-key-here"
 
 # Next.js
 NEXTAUTH_URL="http://localhost:3000"
-\`\`\`
+```
 
 ## 🚀 Deployment
 
 ### Vercel Deployment (Recommended)
 
 1. **Push to GitHub**
-   \`\`\`bash
+   ```bash
    git add .
    git commit -m "Initial commit"
    git push origin main
-   \`\`\`
+   ```
 
 2. **Deploy to Vercel**
    - Connect your GitHub repository to Vercel
@@ -311,9 +311,9 @@ NEXTAUTH_URL="http://localhost:3000"
 ### Manual Deployment
 
 1. **Build the application**
-   \`\`\`bash
+   ```bash
    npm run build
-   \`\`\`
+   ```
 
 2. **Set up production database**
    - Configure production database URL
@@ -321,9 +321,9 @@ NEXTAUTH_URL="http://localhost:3000"
    - Seed data: `npm run db:seed`
 
 3. **Start production server**
-   \`\`\`bash
+   ```bash
    npm start
-   \`\`\`
+   ```
 
 ## 🤖 My AI Usage
 
