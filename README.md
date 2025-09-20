@@ -33,18 +33,18 @@ A modern, full-stack sweet shop management system built with Next.js, TypeScript
 ### Installation
 
 1. **Clone the repository**
-   \`\`\`bash
-   git clone <repository-url>
+   ```bash
+   git clone https://github.com/Tejaskt/Sweet-Shop-Management-System.git
    cd sweet-shop-management
-   \`\`\`
+   ```
 
 2. **Install dependencies**
-   \`\`\`bash
+   ```bash
    npm install
-   \`\`\`
+   ```
 
 3. **Set up the database**
-   \`\`\`bash
+   ```bash
    # Generate Prisma client
    npm run db:generate
    
@@ -53,12 +53,12 @@ A modern, full-stack sweet shop management system built with Next.js, TypeScript
    
    # Seed the database with sample data
    npm run db:seed
-   \`\`\`
+   ```
 
 4. **Start the development server**
-   \`\`\`bash
+   ```bash
    npm run dev
-   \`\`\`
+   ```
 
 5. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
@@ -79,7 +79,7 @@ The system comes with pre-configured demo accounts:
 
 ## 📁 Project Structure
 
-\`\`\`
+```
 sweet-shop-management/
 ├── app/                    # Next.js App Router pages
 │   ├── api/               # API routes
@@ -104,7 +104,7 @@ sweet-shop-management/
 ├── scripts/               # Utility scripts
 ├── __tests__/             # Test files
 └── public/                # Static assets
-\`\`\`
+```
 
 ## 🛠 API Documentation
 
